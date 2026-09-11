@@ -1,0 +1,30 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Godot Mono/C# build artifacts (if/when C# is enabled)
+.mono/
+data_*/
+mono_crash.*.json
+*.pdb
+
+# Local exports
+builds/
+export_presets.cfg
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Per-developer agent tooling (see AGENTS.md for how to reproduce)
+.claude/
+.agents/
+.antigravity/
+skills-lock.json
+.mcp.json
+
+# Godot MCP dev bridge - not game code
+mcp_interaction_server.gd
+mcp_interaction_server.gd.uid

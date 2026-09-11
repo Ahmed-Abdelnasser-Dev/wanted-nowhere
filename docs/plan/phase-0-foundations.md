@@ -5,69 +5,86 @@ retrofit it onto.
 
 **Depends on:** nothing. This is the first phase.
 
-**Done when:** a throwaway label in `game_scene.tscn` renders an English string, a runtime toggle
-switches it to Arabic with correct shaping, and the layout mirrors right to left.
+**Done when:** a throwaway dev scene renders an English string, a runtime toggle switches it to
+Arabic with correct shaping, and the layout mirrors right to left. Done, see `scenes/dev/locale_test.tscn`.
 
 ## 0.1 Translation pipeline
 
-- [ ] Create `assets/i18n/strings.csv` with `keys`, `en`, `ar` columns (Godot's CSV translation
+- [x] Create `assets/i18n/strings.csv` with `keys`, `en`, `ar` columns (Godot's CSV translation
   import format).
-- [ ] Add a handful of seed keys to prove the format, for example `UI_MENU_START`, `UI_MENU_QUIT`.
-- [ ] Let Godot import the CSV as `.translation` resources (automatic on import once the file is
-  added to the project).
-- [ ] Register the imported translations in `project.godot` under
-  `internationalization/locale/translations`.
+- [x] Add a handful of seed keys to prove the format, for example `UI_MENU_START`, `UI_MENU_QUIT`.
+  Eight keys landed: the Phase 4 menu spine, two ability names, one value with a quoted comma, and
+  one mixing Arabic text with Latin digits to prove bidi ordering.
+- [x] Let Godot import the CSV as `.translation` resources (automatic on import once the file is
+  added to the project). They land next to the CSV as `strings.en.translation` /
+  `strings.ar.translation` and are tracked in git since `project.godot` references them by path.
+- [x] Register the imported translations in `project.godot` under
+  `internationalization/locale/translations`. `locale/fallback` is set to `"en"`.
 
-**Verify:** `godot --headless --path . --quit` still loads with no import errors, and the Godot
-editor's Project Settings → Localization tab lists both `en` and `ar` translations.
+**Verify:** `godot --headless --path . --quit` loads with no import errors, and
+`TranslationServer.get_loaded_locales()` returns both `en` and `ar`. Confirmed via `game_eval`.
 
-**Files:** `assets/i18n/strings.csv`, `project.godot`.
+**Files:** `assets/i18n/strings.csv`, `assets/i18n/strings.en.translation`,
+`assets/i18n/strings.ar.translation`, `project.godot`.
 
 ## 0.2 Locale switching and RTL layout
 
-- [ ] Add a way to set the active locale at runtime (`TranslationServer.set_locale("ar")`), exposed
-  for now as a debug key or `game_eval` call since there is no settings menu yet.
-- [ ] Confirm `Control.layout_direction` follows the locale automatically and that a test `Control`
-  node's anchors don't fight it (no hardcoded left-alignment that ignores RTL).
+- [x] Add a way to set the active locale at runtime. Built as a real `LocaleManager` autoload
+  (`scripts/autoload/locale_manager.gd`) rather than a throwaway, since Phase 4's settings menu
+  needs the same `set_locale()` / `cycle_locale()` / `locale_changed` signal surface. It persists
+  the choice to `user://settings.cfg`. A single `InputMap` action, `debug_cycle_locale` (F9), drives
+  it for now.
+- [x] Confirm `Control.layout_direction` follows the locale automatically and that a test `Control`
+  node's anchors don't fight it. `internationalization/rendering/root_node_layout_direction` is set
+  to "Based on Application Locale" (0), so `is_layout_rtl()` follows whatever `LocaleManager` sets.
+  The dev scene deliberately leaves every Control at its default alignment and anchors, no hardcoded
+  `HORIZONTAL_ALIGNMENT_LEFT`, and layout direction alone produces correct mirroring.
 
-**Verify:** with `run_project`, flip locale to `ar` via `game_eval`, screenshot, confirm the test
-label's text and alignment mirrored.
+**Verify:** with `run_project`, flip locale to `ar` via the F9 action, screenshot, confirm the dev
+scene's text and its `HBoxContainer` child order both mirrored. Confirmed: English and Arabic
+screenshots both taken, `HBoxContainer` children reversed order in Arabic, status label reported
+`ar` / `rtl=true`. Locale also persists and restores correctly across a full stop/relaunch.
 
-**Files:** wherever the debug toggle lives (a small script on `game_scene.tscn` is enough for this
-phase; it can be deleted once Phase 4 builds the real settings menu).
+**Files:** `scripts/autoload/locale_manager.gd`, `scenes/dev/locale_test.tscn`,
+`scripts/dev/locale_test.gd`, `project.godot`.
 
 ## 0.3 Font coverage
 
-- [ ] Pick a font setup that renders both Latin and Arabic glyphs with correct contextual shaping.
+- [x] Pick a font setup that renders both Latin and Arabic glyphs with correct contextual shaping.
 
-Three options, see the tradeoffs below; start with option 3 and revisit at Phase 4 once the real UI
-exists to judge it against:
+**Decision: option 1, a single pixel font with real Arabic coverage, no fallback chain.**
+`assets/fonts/PixelAE-{Regular,Bold}.ttf` (added alongside this phase) turned out to already carry
+55 Arabic-block codepoints, 89 Arabic Presentation Forms-B glyphs, and a GSUB table with `arab`
+script plus `init`/`medi`/`fina`/`rlig` features, so this was available from the start rather than
+something to build up to. Known limit: no tashkeel (U+064B-0652), so in-game Arabic stays
+unvocalized; revisit if a string ever needs diacritics.
 
-1. **A pixel font with Arabic coverage.** Best visual consistency with the rest of the pixel-art
-     game, hardest to source or commission.
-2. **A normal Arabic TTF for UI text only**, accepting it reads crisper than the pixel art around
-     it. Common in pixel-art games shipping non-Latin locales; lowest risk.
-3. **Godot's fallback font chain**: pixel font first, an Arabic-capable font behind it for glyphs the
-     pixel font lacks. Simplest to set up now; mixed weights on one line can look inconsistent, worth
-     a second look once real UI text exists.
+- [x] Apply the chosen font to the dev scene and confirm Arabic glyphs render correctly shaped, not
+  as boxes or disconnected letterforms. Applied via `assets/ui/main_theme.tres`
+  (`gui/theme/custom` in `project.godot`), `default_font_size = 10`. Both `.ttf.import` files were
+  also switched from Godot's smooth-text defaults to pixel-rendering settings: `antialiasing`,
+  `hinting`, and `subpixel_positioning` all set to their `NONE`/`DISABLED` value (0). Canvas texture
+  filtering project-wide was also switched to Nearest
+  (`rendering/textures/canvas_textures/default_texture_filter=0`), since the project had been
+  running on Godot's linear default despite the pixel-perfect integer-scaled viewport.
 
-- [ ] Apply the chosen font (or fallback chain) to the test label from 0.2 and confirm Arabic glyphs
-  render correctly shaped, not as boxes or disconnected letterforms.
+**Verify:** screenshot of the dev scene in Arabic; letters connect the way Arabic script requires.
+Confirmed visually (see 0.2's screenshots), and confirmed directly: `TextServerManager` reports the
+Advanced (ICU / HarfBuzz / Graphite) interface, and shaping "لا" (lam + alef, 2 characters) collapses
+to a single glyph, proving the lam-alef ligature fires.
 
-**Verify:** screenshot of the test label in Arabic; letters should connect the way Arabic script
-requires, not render as isolated forms.
-
-**Files:** a font resource under `assets/` (location depends on what gets picked), the test label's
-scene.
+**Files:** `assets/ui/main_theme.tres`, `assets/fonts/PixelAE-Regular.ttf.import`,
+`assets/fonts/PixelAE-Bold.ttf.import`, `project.godot`.
 
 ## 0.4 The convention
 
-- [ ] Add the "Localization" section to `AGENTS.md` if not already present (it is, as of this
-  writing; keep it in sync if the pipeline design changes during this phase).
-- [ ] Confirm every phase file from 1 onward carries the "Standing constraints" block referencing
-  this convention.
+- [x] Add the "Localization" section to `AGENTS.md` if not already present, and keep it in sync with
+  what actually shipped: the `LocaleManager` autoload, the closed font decision, and the RTL layout
+  direction setting.
+- [x] Confirm every phase file from 1 onward carries the "Standing constraints" block referencing
+  this convention. Verified: phases 1 through 5 all have it.
 
 **Verify:** re-read `AGENTS.md` → "Localization" and confirm it matches what actually got built in
-0.1 through 0.3, not just what was planned.
+0.1 through 0.3, not just what was planned. Confirmed.
 
 **Files:** `AGENTS.md`.

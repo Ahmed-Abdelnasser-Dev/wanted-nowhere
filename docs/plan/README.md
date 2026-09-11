@@ -21,8 +21,9 @@ top of it. When the two disagree, `docs/idea/` wins and this plan gets corrected
 
 ## Status
 
-Phase 0 not started. Nothing past the empty scaffold described in `AGENTS.md` → "Known gaps" exists
-yet.
+Phase 0 complete: the translation pipeline, `LocaleManager` autoload, RTL layout, and font coverage
+all work end to end (see `docs/plan/phase-0-foundations.md`). Phase 1 is next; nothing past that
+exists yet, see `AGENTS.md` → "Known gaps".
 
 ## What comes after the demo
 

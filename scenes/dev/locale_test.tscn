@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/dev/locale_test.gd" id="1_script"]
+[ext_resource type="Theme" path="res://assets/ui/main_theme.tres" id="2_theme"]
+
+[node name="root" type="Control" unique_id=1510019604]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StartLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "UI_MENU_START"
+
+[node name="QuitButton" type="Button" parent="Margin/VBox"]
+layout_mode = 2
+text = "UI_MENU_QUIT"
+
+[node name="AbilityRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ShadowMovementLabel" type="Label" parent="Margin/VBox/AbilityRow"]
+layout_mode = 2
+text = "ABILITY_SHADOW_MOVEMENT_NAME"
+
+[node name="BloodBlastLabel" type="Label" parent="Margin/VBox/AbilityRow"]
+layout_mode = 2
+text = "ABILITY_BLOOD_BLAST_NAME"
+
+[node name="MixedLabel" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+text = "UI_DEV_LOCALE_TEST_MIXED"
+
+[node name="StatusLabel" type="Label" parent="Margin/VBox" node_paths=PackedStringArray()]
+unique_name_in_owner = true
+layout_mode = 2
+text = "status"

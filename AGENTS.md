@@ -32,18 +32,24 @@ Design pillars that constrain every change:
 
 `project.godot`: viewport `640x360`, window `1280x720`, `stretch/mode=viewport`,
 `stretch/aspect=keep_height`, `scale_mode=integer`, renderer `gl_compatibility` (both desktop and
-mobile). This is a deliberate pixel-perfect, low-power choice made for the Web/Mobile targets: don't
-switch renderers or drop integer scaling without a real reason.
+mobile), `rendering/textures/canvas_textures/default_texture_filter=Nearest`. This is a deliberate
+pixel-perfect, low-power choice made for the Web/Mobile targets: don't switch renderers, drop
+integer scaling, or reintroduce linear texture filtering without a real reason.
 
 ## Layout
 
-- `scenes/`: `.tscn` files. `game_scene.tscn` is the current (empty) main scene.
-- `scripts/`: mirrors `scenes/`, one script per scene/node as the project grows.
+- `scenes/`: `.tscn` files. `game_scene.tscn` is the current (empty) main scene. `scenes/dev/` holds
+  throwaway scenes built to prove a pipeline works before real UI exists; delete each one once the
+  phase that replaces it lands.
+- `scripts/`: mirrors `scenes/`, one script per scene/node as the project grows. `scripts/autoload/`
+  holds autoload singleton scripts, one file per entry in `project.godot`'s `[autoload]` section.
 - `assets/characters/{vampire_normal,vampire_ascended}/{Idle,Walk,Run,Attack,Hurt,Death}/`: sprite
   sheets, each phase already split into `_body`, `_head`, `_shadow`, `_full` (and `_magic`/`_red` for
   Attack/Death) layers.
 - `assets/tiles/`, `assets/objects/`: top-down tileset and scenery.
 - `assets/i18n/`: translation source tables (see "Localization").
+- `assets/ui/`: shared UI resources, starting with `main_theme.tres`, the project's default `Theme`
+  (registered as `gui/theme/custom` in `project.godot`).
 - `docs/idea/`, `docs/plan/`, `docs/technical/`: design source of truth.
 
 ## GDScript conventions
@@ -76,13 +82,24 @@ English and Arabic are supported from the first UI element, not bolted on later.
 
 - Every user-facing string goes through a translation key, never a literal. Keys are grouped by
   area, for example `UI_MENU_START`, `ABILITY_SHADOW_MOVEMENT_NAME`.
-- Translation source lives in `assets/i18n/` as a CSV table with `en` and `ar` columns, imported by
-  Godot as `.translation` resources and registered in `project.godot`.
-- UI layout must tolerate right-to-left mirroring; don't hardcode anchors or text direction in a way
-  that only works for left-to-right English.
+- Translation source lives in `assets/i18n/strings.csv` (`keys`, `en`, `ar` columns), imported by
+  Godot as `strings.en.translation` / `strings.ar.translation` next to the CSV and registered under
+  `internationalization/locale/translations` in `project.godot`, with `locale/fallback="en"`.
+- The `LocaleManager` autoload (`scripts/autoload/locale_manager.gd`) owns the active locale:
+  `set_locale()` / `cycle_locale()`, a `locale_changed` signal, and persistence to
+  `user://settings.cfg`. It is the only place that should call `TranslationServer.set_locale()`.
+- `internationalization/rendering/root_node_layout_direction` is set to "Based on Application
+  Locale", so `Control.is_layout_rtl()` follows whatever `LocaleManager` sets, not the OS locale.
+  UI layout must tolerate that mirroring; don't hardcode anchors, alignment, or text direction in a
+  way that only works left-to-right.
+- Font: `PixelAE-Regular` / `PixelAE-Bold` (`assets/fonts/`) cover both locales alone, no fallback
+  chain. They carry a real Arabic GSUB table (`arab` script, `init`/`medi`/`fina`/`rlig`), so
+  contextual shaping and lam-alef ligation work without a second font behind them. Known limit: no
+  tashkeel (Arabic diacritics, U+064B-0652), so in-game Arabic text must stay unvocalized. Applied
+  project-wide via `assets/ui/main_theme.tres` (`gui/theme/custom`); both `.ttf.import` files are
+  set for pixel rendering (`antialiasing`, `hinting`, `subpixel_positioning` all off).
 
-See `docs/plan/phase-0-foundations.md` for the pipeline build-out and the open font-coverage
-decision.
+See `docs/plan/phase-0-foundations.md` for how this was built and verified.
 
 ## Verifying changes
 
@@ -142,8 +159,10 @@ A fresh clone needs the rest to get the same setup:
 
 ## Known gaps (not yet built)
 
-- No `InputMap` entries: right-click move, left-click attack, QWER abilities all need binding.
+- Only one `InputMap` entry exists (`debug_cycle_locale`, F9, Phase 0's dev toggle). Right-click
+  move, left-click attack, and QWER abilities all still need binding.
 - No player scene/script: `game_scene.tscn` is an empty `Node2D`.
-- No translation pipeline yet: `assets/i18n/` doesn't exist; see `docs/plan/phase-0-foundations.md`.
+- No license file for `assets/fonts/PixelAE-*.ttf`; needed before wider distribution since this
+  repo has a public remote.
 - Export templates installed are `4.7.stable`/`4.7.1.stable`; the engine is `4.7.2.stable`. Godot
   requires an exact match, so exporting will fail until matching templates are installed.

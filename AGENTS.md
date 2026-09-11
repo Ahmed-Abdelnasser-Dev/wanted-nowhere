@@ -102,6 +102,10 @@ agent tooling, not game code. A fresh clone needs this to get the same setup:
    `thedivergentai/gd-agentic-skills`, `pluginagentmarketplace/custom-plugin-game-developer`, and
    `zate/cc-godot` — see `skills-lock.json` for the exact mapping once regenerated, or copy directly
    from another local Godot project that already has the full set.
+5. **Antigravity workspace registration** — `agy` does not auto-detect a cwd as a project the way
+   Claude Code does. Run `agy --add-dir .` from the repo root once (or open the folder in the
+   Antigravity IDE) and approve the trust/permission prompts; only then will it read `AGENTS.md`,
+   `.agents/skills/`, and `.mcp.json`. See `GEMINI.md` for details.
 
 ## Known gaps (not yet built)
 

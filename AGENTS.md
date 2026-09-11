@@ -62,7 +62,7 @@ relevant skill before writing non-trivial GDScript rather than re-deriving these
 There is **no test framework, linter, or CI** in this project. Verification means running the game
 and looking at it:
 
-```
+```sh
 godot --headless --path . --quit    # sanity check: loads, no import/scene errors
 ```
 
@@ -77,19 +77,23 @@ tool calls (timers, drains, AI keep running while you inspect) — factor that i
 `.agents/`, `.mcp.json`, `.claude/`, and `skills-lock.json` are **gitignored** — they're per-developer
 agent tooling, not game code. A fresh clone needs this to get the same setup:
 
-1. **Godot MCP server** — built from https://github.com/tugcantopaloglu/godot-mcp (157 tools: scene
+1. **Godot MCP server** — built from <https://github.com/tugcantopaloglu/godot-mcp> (157 tools: scene
    editing, runtime `game_*` inspection/control, autoload management, script validation, etc.).
    Build it once (`npm install && npm run build`), then put a small shim named `godot-mcp` on your
    `PATH`:
+
    ```sh
    #!/bin/sh
    export GODOT_PATH=/usr/bin/godot   # or wherever your Godot 4.7.2 binary lives
    exec node /path/to/godot-mcp/build/index.js "$@"
    ```
+
 2. **Project `.mcp.json`** (repo root):
+
    ```json
    { "mcpServers": { "godot": { "type": "stdio", "command": "godot-mcp", "args": [] } } }
    ```
+
 3. **Runtime bridge** — copy the server's `build/scripts/mcp_interaction_server.gd` into the repo
    root and register it as the `McpInteractionServer` autoload in `project.godot` (already done in
    this repo's committed `project.godot`; only the `.gd` file itself is gitignored, so re-copy it).

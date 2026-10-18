@@ -1,65 +1,58 @@
 # Wanted Nowhere
 
-A 2D top-down rogue-like built in Godot, set in a fantasy world where you play as a vampire hunted by
-both humans and monsters, constantly fighting, constantly healing.
+A 2D top-down roguelike built in **Godot 4.7**. You play as a vampire hunted by both humans and monsters, always fighting and always healing.
 
-Days and nights cycle. You avoid the sun by day using the **shadow**, and unlock your full power at
-night. Moon cycles matter too: you're stronger under a full moon. Combat feeds experience, and
-experience offers upgrade cards for your stats and abilities.
+> **Status: pre-alpha.** The design, art, and tiles are in place. Gameplay is being built. See [AGENTS.md](AGENTS.md) for known gaps.
+
+## The idea
+
+- **Day and night cycle.** Hide from the sun in the shadows by day, unlock your full power at night.
+- **Moon phases matter.** You are strongest under a full moon.
+- **Two enemy families,** Human and Monster, each with their own bosses.
+- **Progression through combat.** Fighting earns experience, and experience offers upgrade cards for your stats and abilities.
 
 ## Abilities
 
-Move with right-click, melee attack with left-click (a 3-hit combo: slash, slash, triple-slash), and
-four abilities bound to **Q W E R**:
+Move with right-click. Melee with left-click in a 3-hit combo: slash, slash, triple-slash. Four abilities sit on **Q W E R**:
 
-| | Normal Phase | Ascended Phase (R to enter, 30s duration, 90s cooldown) |
+| Key | Normal Phase | Ascended Phase (30s, 90s cooldown) |
 |---|---|---|
-| **Q** | Shadow Movement: dash that damages & knocks back | Death Dance: dash that also spikes the ground; dash twice in a row |
-| **W** | Bat/Human Shape: faster & smaller as a bat, immune for 2s, less sun damage | Wake the Dead: summon fighting ghosts |
-| **E** | Blood Blast: AoE damage + 0.5s slow | Blink of the Death: execute nearby enemies, slow/damage further out |
-| **R** | Ascend into the Ascended Phase | End ascension early, refunding unused duration to the cooldown |
+| **Q** | **Shadow Movement:** a dash that damages and knocks back | **Death Dance:** the dash also spikes the ground, and you can dash twice |
+| **W** | **Bat / Human Shape:** a faster, smaller bat form, immune for 2s, takes less sun damage | **Wake the Dead:** summon ghosts that fight for you |
+| **E** | **Blood Blast:** area damage plus a 0.5s slow | **Blink of Death:** execute nearby enemies, slow and damage those further out |
+| **R** | Ascend into the Ascended Phase | End ascension early and refund the unused time to the cooldown |
 
-Enemies come in two families, **Human** and **Monster**, each with their own bosses.
+## Platforms and languages
 
-The game is planned for **English and Arabic**, targeting **Desktop, Web, and Mobile**.
-
-## Status
-
-Pre-alpha scaffold. No gameplay is implemented yet: no player script, no input bindings, just the
-empty main scene and the imported art/tile assets. See `AGENTS.md` for current known gaps.
-
-## Requirements
-
-- [Godot Engine 4.7.2](https://godotengine.org/download) (GL Compatibility renderer). An exact
-  version match matters if you intend to export; see `AGENTS.md`.
+Planned for **desktop, web, and mobile**, in **English and Arabic**.
 
 ## Running it
 
-```sh
-godot --path .          # open in the editor
-godot --headless --path . --quit   # headless sanity check (loads, no scene/import errors)
+Requires [Godot 4.7.2](https://godotengine.org/download) (GL Compatibility renderer). Match the version exactly if you plan to export.
+
+```bash
+godot --path .                      # open in the editor
+godot --headless --path . --quit    # quick check that the project loads cleanly
 ```
 
-## Repository layout
+## Project layout
 
-```text
-scenes/    .tscn scene files
-scripts/   GDScript, mirrors scenes/
+```
+scenes/     Scene files
+scripts/    GDScript, mirrors scenes/
 assets/
-  characters/vampire_normal/, vampire_ascended/   sprite sheets per phase & action
-  tiles/, objects/                                 top-down tileset and scenery
+  characters/   Vampire sprite sheets for each phase and action
+  tiles/        Top-down tileset
+  objects/      Scenery
 docs/
-  idea/        original design pitch
-  plan/        planning docs
-  technical/   technical design docs
+  idea/         Original design pitch
+  plan/         Planning docs
 ```
 
-## Contributing / agent setup
+## How it is built
 
-This repo is developed with AI coding agents (Claude Code and Antigravity) alongside manual work.
-`AGENTS.md` is the canonical brief for design pillars, conventions, and how to reproduce the local
-MCP/skills harness from a fresh clone.
+Developed with AI coding agents (Claude Code and Antigravity) alongside hand-written work. [AGENTS.md](AGENTS.md) holds the design pillars, conventions, and agent setup.
 
 ## Credits
 
-Character and tile art credits: TBD.
+Design and code by **Ahmed Abdelnasser**. Character and tile art credits coming soon.
